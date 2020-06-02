@@ -3,9 +3,8 @@
 {{ $lang := $.Page.Language.Lang }}
 
 <div class="hero">
-	<h1>{{ $.Page.Params.Title }}</h1>
-	<div class="description">
-		{{ .Content }}
+	<div class="img" style="min-height: 45vmin; position: relative; color: {{ .Params.color | default "#fff" }};background-image: url({{ .Params.image }}); background-size: cover">
+		<h1 style="position: absolute; bottom: 0; font-size: 3rem">{{ .Title }}</h1>
 	</div>
 </div>
 
@@ -20,14 +19,14 @@
 			<div class="info">
 				<div class="date">{{ partial "date-short.html" (dict "time" .Date "lang" $lang) }}</div>
 				<h2>{{ .Title }}</h2>
-				<span class="brief">{{ .Params.brief }}</span>
 				<!-- <div class="reading">{{ .ReadingTime }}</div> -->
-				<p>{{ .Summary }} ...</p>
+				<p>{{ .Params.brief }} ...</p>
 			</div>
 		</a>
 	</article>
 	{{ end }}
 </section>
+<br />
 
 
 {{ end }}

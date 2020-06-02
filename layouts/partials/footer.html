@@ -3,39 +3,21 @@
 
 		<div class="footer-header">
 			<div class="share">
-				<div class="header">{{ i18n "footer_share" }}</div>
-				<ul class="social-list">
-					{{ range .Site.Data.footer.share }}
-					<li>
-						{{ $url := .URL | relLangURL }}
-						{{ partial "social-sharer.html" (dict "context" . "url" $url "name" .name) }}
-						{{ end }}
-				</ul>
+				<header>首届数字人文作品展</header>
+				
 			</div>
 			<div class="blog">
-				<div class="header">
-					{{ i18n "footer_follow_blog" }} <a href="{{ "blog/" | relLangURL }}">{{ i18n "footer_follow_blog_blog" }}</a>
-				</div>
+				<header>
+					北京大学数字人文中心
+				</header>
 			</div>
-			<div class="follow">
-				<div class="header">{{ i18n "footer_follow_us" }}</div>
-				<ul class="social-list">
-					{{ range .Site.Data.footer.follow }}
-					<li>
-						<a href="{{ .url }}" class="social" rel="noopener noreferrer" target="_blank">
-							{{ partial "icon.html" .name }}
-							{{ .name }}
-						</a>
-					</li>
-					{{ end }}
-				</ul>
+			<div class="contact">
+				<header>
+					联系方式：<a href="mailto:gdhc@pku.edu.cn">gdhc@pku.edu.cn</a>
+				</header>
 			</div>
-			<div class="email">
-				<a href="mailto:{{ .Site.Params.email }}">
-					{{ partial "icon.html" "email" }}
-					{{- .Site.Params.email -}}
-				</a>
-			</div>
+			
+		
 		</div>
 
 		<hr>

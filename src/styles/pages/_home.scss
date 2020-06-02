@@ -13,6 +13,7 @@
     }
   }
 
+
   .info {
 
     .wrapper {
@@ -64,6 +65,89 @@
 
       div {
         margin: var(--space-1) 0;
+      }
+    }
+  }
+
+  .home-schedule {
+    margin: 0;
+    padding: 4rem;
+    background-color: var(--primary);
+    
+    .inner-wrapper {
+      max-width: var(--theJdrSize);
+      margin: 0 auto;
+
+      h1 {
+        color: white;
+      }
+    }
+
+    .inner {
+      display: flex;
+      margin-top: 30px;
+      flex-direction: row;
+      justify-content: space-between;
+      flex-wrap: wrap;
+
+      .step {
+        height: 120px;
+        margin: 10px;
+        width: 150px;
+        border-radius: 5%;
+        background-color: rgba(255,255,255,0.8);
+        display: flex;
+        flex-direction: column;
+        flex: 1 0 auto;
+
+        .title{
+          margin: 10px auto;
+          text-align: center;
+          font-size: 1.25rem;
+        }
+
+        .time {
+          text-align: center;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  .button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .purposes {
+    margin: 0;
+    padding: 4rem;
+
+    .inner {
+      max-width: var(--theJdrSize);
+      margin: 0 auto;
+
+      h1 {
+        margin-bottom: 20px;
+      }
+      
+      .purpose-wrapper {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .purpose{
+        padding: 0 20px;
+        flex: 1 0 auto;
+        max-width: 320px;
+      }
+
+
+      li {
+        margin-bottom: 15px;
       }
     }
   }
