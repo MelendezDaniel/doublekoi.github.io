@@ -1,4 +1,8 @@
-<!doctype html><!-- Build: per-arm-categories + central people + typeahead | 2025-08-14 + people-manager (patched migration 2025-08-19) -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b0c10">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-512.png"><!doctype html><!-- Build: per-arm-categories + central people + typeahead | 2025-08-14 + people-manager (patched migration 2025-08-19) -->
 <html lang="de"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Double-KO – Turniermanager</title>
 <style>
@@ -1584,5 +1588,13 @@ window.openEditPerson = window.openEditPerson || function(pid){
   });
 })();
 </script>
-
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+}
+(function(){
+  const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  if (standalone) { window.open = (u) => { location.href = u; return null; }; }
+})();
+</script>
 </body></html>
