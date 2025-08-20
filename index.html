@@ -1,0 +1,1588 @@
+<!doctype html><!-- Build: per-arm-categories + central people + typeahead | 2025-08-14 + people-manager (patched migration 2025-08-19) -->
+<html lang="de"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Double-KO – Turniermanager</title>
+<style>
+:root{--bg:#0b0c10;--panel:#16181d;--muted:#9aa0a6;--fg:#e8eaed;--accent:#3b82f6;--green:#22c55e;--red:#ef4444;--border:#27303a;--radius:16px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
+.wrap{max-width:1000px;margin:40px auto;padding:0 16px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+h1{font-size:22px;margin:0 0 12px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input[type=text],input[type=date],input[type=search]{background:#0f1216;border:1px solid var(--border);color:var(--fg);border-radius:12px;padding:10px 12px}
+.grow{flex:1}.muted{color:var(--muted);font-size:13px}
+button{border:0;border-radius:12px;padding:10px 14px;color:white;cursor:pointer;transition:.18s transform,.18s box-shadow,.18s filter}
+button:active{transform:translateY(1px);filter:saturate(0.95)}
+.btn{background:var(--accent)}.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--fg)}
+.btn-danger{background:var(--red)}.btn-save{background:var(--green)}.btn-start{background:var(--green)}
+.table{margin-top:14px;border-collapse:separate;border-spacing:0;width:100%}
+.table thead th{font-size:13px;color:var(--muted);text-align:left;padding:8px;border-bottom:1px solid var(--border)}
+.table tbody td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);font-size:12px;color:#e5e7eb;background:#334155}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.seg button{background:transparent;color:var(--fg);padding:8px 12px;border:0;cursor:pointer}
+.seg button.active{background:var(--accent)}
+.avatar{width:40px;height:40px;border-radius:10px;object-fit:cover;border:1px solid var(--border);box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.avatar-lg{width:80px;height:80px;border-radius:14px;object-fit:cover;border:1px solid var(--border);box-shadow:0 8px 22px rgba(0,0,0,.35)}
+.avatar-badge{width:40px;height:40px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;background:#0f172a;color:#cbd5e1;border:1px solid var(--border);font-weight:700}
+.avatar-badge-lg{width:80px;height:80px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;background:#0f172a;color:#cbd5e1;border:1px solid var(--border);font-weight:800;font-size:22px}
+.match-ava-wrap{display:inline-flex;align-items:center;justify-content:center;width:80px;height:80px;margin-right:12px}
+.big{padding:18px 22px;border-radius:16px;font-size:20px;font-weight:700;letter-spacing:.2px}
+.match-btn{display:flex;align-items:center;justify-content:center;gap:12px;min-height:120px;box-shadow:0 10px 24px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+.match-first{background:linear-gradient(180deg,#3b82f6,#2563eb)}
+.match-win{background:linear-gradient(180deg,#22c55e,#16a34a)}
+.match-lose{background:linear-gradient(180deg,#ef4444,#dc2626)}
+.match-btn:hover{box-shadow:0 14px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.1)}
+.toast{position:fixed;bottom:18px;right:18px;background:#111827;color:#e5e7eb;border:1px solid #374151;border-radius:12px;padding:10px 14px;opacity:0;transform:translateY(8px);transition:.25s}
+.toast.show{opacity:1;transform:translateY(0)}
+.topbar{display:flex;gap:10px;align-items:center;justify-content:space-between}
+#nextNames{display:flex;gap:12px;flex-wrap:wrap}
+#nextNames button{flex:1;min-width:280px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:9999}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:16px;max-width:720px;width:calc(100% - 32px);padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.modal h2{margin:0 0 8px;font-size:20px}
+/* DnD */
+.table tbody tr[draggable="true"]{cursor:grab}
+.table tbody tr.dragging{opacity:.55}
+.table tbody tr.drop-top td{border-top:2px solid var(--accent)}
+.table tbody tr.drop-bottom td{border-bottom:2px solid var(--accent)}
+/* Typeahead */
+.ta-wrap{position:relative;flex:1}
+.ta-list{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#0f1216;border:1px solid var(--border);border-radius:12px;max-height:230px;overflow:auto;display:none;z-index:50}
+.ta-item{padding:8px 10px;border-bottom:1px solid #1f2937;cursor:pointer}
+.ta-item:last-child{border-bottom:0}
+.ta-item:hover{background:#111827}
+.ta-muted{color:#9aa0a6;font-size:12px;margin-left:6px}
+/* Versuch: Safari Kontakt-Autofill-Button verstecken */
+input::-webkit-contacts-auto-fill-button{ visibility:hidden; display:none !important; pointer-events:none; }
+
+/* Safari: Suchfeld-Clear-Button verbergen (damit identisch wie Textfelder) */
+input[type=search]::-webkit-search-cancel-button{ -webkit-appearance:none; appearance:none; display:none; }
+input[type=search]::-webkit-search-decoration{ -webkit-appearance:none; appearance:none; display:none; }
+
+/* ===== Turnier-Titel (minimal, keine anderen Styles beeinflusst) ===== */
+#tournamentHeader{width:100%;}
+#tournamentTitle{
+  font-size:clamp(28px,6vw,48px);
+  text-align:center;
+  margin:12px 0 16px;
+  font-weight:800;
+  line-height:1.1;
+  letter-spacing:0.5px;
+}
+
+</style>
+</head>
+<body>
+
+<header id="tournamentHeader">
+  <h1 id="tournamentTitle" title="Doppelklick zum Bearbeiten">ARMWRESTLING TOURNAMENT</h1>
+</header>
+
+<div class="wrap">
+
+  <!-- Gewichtsklassen -->
+  <div class="card" id="view-list">
+    <div class="topbar">
+      <h1>Gewichtsklassen</h1>
+      <div class="actions">
+        <button class="btn-ghost" id="btnOpenBulk">Teilnehmer zuweisen</button>
+        <button class="btn-ghost" id="btnManagePeople">Spieler verwalten</button>
+        <button class="btn-ghost" id="btnBackup">Backup erstellen</button>
+        <button class="btn-ghost" id="btnRestore">Backup einspielen</button>
+        <span class="muted">Speichert lokal (localStorage + IndexedDB für Fotos)</span>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:space-between;margin:6px 0 10px 0">
+      <div class="seg" role="tablist" aria-label="Arm wählen">
+        <button id="armL" class="active" role="tab" aria-selected="true">Links</button>
+        <button id="armR" role="tab" aria-selected="false">Rechts</button>
+      </div>
+      <div class="row" style="gap:10px;align-items:center">
+        <div class="seg" role="tablist" aria-label="Status wählen">
+          <button id="viewActive" role="tab" aria-selected="true">Aktiv</button>
+          <button id="viewArchived" role="tab" aria-selected="false">Beendet</button>
+        </div>
+        <span class="muted" id="archiveHint"></span>
+      </div>
+    </div>
+
+    <div class="row" style="margin-bottom:10px">
+      <input id="wcName" class="grow" type="text" placeholder="Neue Kategorie (z. B. 80 kg) – wird für Links & Rechts angelegt"/>
+      <button class="btn" id="btnAddWC">Hinzufügen</button>
+      <input type="file" id="restorePicker" accept="application/json" style="display:none"/>
+    </div>
+    <table class="table">
+      <thead><tr><th style="width:40%">Kategorie</th><th style="width:22%">Teilnehmer</th><th>Aktionen</th></tr></thead>
+      <tbody id="wcTableBody"></tbody>
+    </table>
+    <div class="muted" id="emptyWc" style="display:none;margin-top:10px;">Noch keine Gewichtsklassen angelegt.</div>
+  </div>
+
+  <!-- Teilnehmer -->
+  <div class="card" id="view-players" style="display:none">
+    <div class="topbar"><h1 id="playersTitle">Teilnehmer</h1></div>
+    <div class="row" id="playersTopActions" style="margin-bottom:10px"><button class="btn-ghost" id="btnBack">&larr; Zurück</button></div>
+
+    <div class="row" style="margin-bottom:10px; gap:10px; align-items:flex-start">
+      <div class="ta-wrap">
+        <input id="pName" class="grow" type="text" placeholder="Name (Tippen für Vorschläge)"/>
+        <div id="taList" class="ta-list" role="listbox" aria-label="Vorschläge"></div>
+      </div>
+      <input id="pClub" class="grow" type="text" placeholder="Verein (optional)" style="max-width:220px"/>
+      <input id="pDob" class="grow" type="date" placeholder="Geburtsdatum (optional)" style="max-width:190px"/>
+      <input id="pPhoto" class="grow" type="text" placeholder="Foto-URL (optional)"/>
+      <button class="btn" id="btnAddPlayer">Zur Kategorie hinzufügen</button>
+    </div>
+    <div class="muted">Tipp: Foto per <b>Drag & Drop</b> auf die Foto-Spalte ziehen oder die Zelle anklicken.</div>
+    <input type="file" id="filePicker" accept="image/*" style="display:none"/>
+
+    <table class="table">
+      <thead><tr><th style="width:36%">Spieler</th><th style="width:20%">Verein</th><th style="width:18%">Geburtsdatum</th><th style="width:18%">Foto</th><th>Aktionen</th></tr></thead>
+      <tbody id="playersTableBody"></tbody>
+    </table>
+    <div class="muted" id="emptyPlayers" style="display:none;margin-top:10px;">Noch keine Teilnehmer in dieser Kategorie.</div>
+  </div>
+
+  <!-- Turnier -->
+  <div class="card" id="view-tournament" style="display:none">
+    <div class="topbar">
+      <h1 id="tTitle">Turnier</h1>
+      <div class="actions"><button class="btn-ghost" id="tBack">&larr; Schließen</button></div>
+    </div>
+
+    <div id="nextBox" class="card" style="padding:16px;margin-top:8px">
+      <div class="muted">Nächste Paarung</div>
+      <div id="nextBracket" style="margin:6px 0 12px 0;font-size:18px"></div>
+      <div id="nextNames" style="margin-bottom:12px"></div>
+      <div class="actions"><button class="btn-ghost big" id="undoLast">Letztes Match rückgängig</button></div>
+    </div>
+
+    <div class="card" id="rankingCard" style="margin-top:12px;padding:12px;display:none">
+      <div class="muted" style="margin-bottom:8px">Ergebnis</div>
+      <div id="ranking"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Ergebnis-Modal -->
+<div class="modal-overlay" id="resultsOverlay" aria-modal="true" role="dialog">
+  <div class="modal" role="document">
+    <h2>Ergebnis – <span id="resTitle"></span></h2>
+    <div id="resBody" style="margin:8px 0 12px 0"></div>
+    <div class="actions" style="justify-content:flex-end"><button class="btn-ghost" id="resClose">Schließen</button></div>
+  </div>
+</div>
+
+<!-- Teilnehmer-zuweisen-Modal -->
+<div class="modal-overlay" id="bulkOverlay" aria-modal="true" role="dialog">
+  <div class="modal" role="document">
+    <h2>Teilnehmer zuweisen</h2>
+    <div class="row" style="margin:8px 0">
+      <div class="ta-wrap">
+        <input id="bulkName" class="grow" type="text" placeholder="Name (Tippen für Vorschläge)"/>
+        <div id="bulkTaList" class="ta-list" role="listbox" aria-label="Vorschläge"></div>
+      </div>
+      <input id="bulkClub" class="grow" type="text" placeholder="Verein (optional)"/>
+    </div>
+    <div class="row" style="margin:8px 0">
+      <input id="bulkDob" class="grow" type="date" placeholder="Geburtsdatum (optional)"/>
+      <input id="bulkPhoto" class="grow" type="text" placeholder="Foto-URL (optional)"/>
+    </div>
+    <div style="max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:12px;padding:8px" id="bulkList"></div>
+    <div class="actions" style="justify-content:flex-end;margin-top:10px">
+      <button class="btn-ghost" id="bulkCancel">Abbrechen</button>
+      <button class="btn-save" id="bulkDo">Hinzufügen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Spieler verwalten (NEU) -->
+<div class="modal-overlay" id="peopleOverlay" aria-modal="true" role="dialog">
+  <div class="modal" role="document">
+    <h2>Spieler verwalten</h2>
+    <div class="row" style="margin:8px 0 12px 0">
+      <input id="peopleSearch" class="grow" type="text" placeholder="Suchen nach Name, Verein, Geburtsdatum…"/>
+      <button class="btn-ghost" id="peopleClose">Schließen</button>
+    </div>
+    <div style="max-height:380px;overflow:auto;border:1px solid var(--border);border-radius:12px">
+      <table class="table" style="margin:0">
+        <thead><tr><th>Name</th><th>Verein</th><th>Geburtsdatum</th><th>Foto</th><th>Aktion</th></tr></thead>
+        <tbody id="peopleTBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit-Person Overlay for basic People Manager -->
+<div class="modal-overlay" id="editPersonOverlay" aria-modal="true" role="dialog" style="display:none; z-index:100001">
+  <div class="modal" role="document">
+    <h2>Spieler bearbeiten</h2>
+    <div class="row" style="margin:8px 0; gap:10px; align-items:flex-start">
+      <input id="epName" type="text" class="grow" placeholder="Name">
+      <input id="epClub" type="text" placeholder="Verein (optional)" style="max-width:220px">
+      <input id="epDob" type="date" placeholder="Geburtsdatum (optional)" style="max-width:190px">
+      <input id="epPhoto" type="text" class="grow" placeholder="Foto-URL (optional)">
+    </div>
+    <div class="actions" style="justify-content:flex-end;margin-top:10px">
+      <button class="btn-ghost" id="epCancel">Abbrechen</button>
+      <button class="btn-save" id="epSave">Speichern</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ========= Keys & Utils ========= */
+const KEY="doubleko.weightclasses.v1";
+const PKEY="doubleko.people.v1";
+const $=s=>document.querySelector(s);
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1500);}
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():"id-"+Date.now()+"-"+Math.random().toString(16).slice(2);
+const now=()=>new Date().toISOString();
+
+// Diakritik-robuste Normalisierung (ä->a, ö->o, ü->u, ß->ss), trim
+function normalizeText(s){
+  return String(s||"")
+    .toLowerCase()
+    .normalize("NFD").replace(/\p{Diacritic}/gu, "")
+    .replace(/ß/g, "ss")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+
+/* ========= LocalStorage ========= */
+function loadWCs(){try{const v=JSON.parse(localStorage.getItem(KEY))||[];return v.map(w=>({ id:w.id,name:w.name,arm:w.arm||null,archived:!!w.archived,finishedAt:w.finishedAt||null,started:!!w.started,order: typeof w.order==="number"?w.order:null, players:Array.isArray(w.players)?w.players:[], state:w.state||null }))}catch{return []}}
+function saveWCs(list){ localStorage.setItem(KEY,JSON.stringify(list)); }
+
+function loadPeople(){try{const v=JSON.parse(localStorage.getItem(PKEY))||{};return v && typeof v==='object'? v : {} }catch{return {}}}
+function savePeople(db){ localStorage.setItem(PKEY, JSON.stringify(db)); }
+
+/* ========= IndexedDB (Fotos) ========= */
+let photoDBPromise=null;
+function openPhotoDB(){ if(photoDBPromise) return photoDBPromise;
+  photoDBPromise=new Promise((res,rej)=>{const r=indexedDB.open('doubleko_media',1);
+    r.onupgradeneeded=()=>{const db=r.result; if(!db.objectStoreNames.contains('photos')) db.createObjectStore('photos',{keyPath:'id'});};
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); return photoDBPromise; }
+async function idbPutPhoto(id,blob){const db=await openPhotoDB();return new Promise((res,rej)=>{const tx=db.transaction('photos','readwrite');tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.objectStore('photos').put({id,blob,updated:Date.now()});});}
+async function idbGetPhotoBlob(id){const db=await openPhotoDB();return new Promise((res,rej)=>{const tx=db.transaction('photos','readonly');const rq=tx.objectStore('photos').get(id);rq.onsuccess=()=>res(rq.result?rq.result.blob:null);rq.onerror=()=>rej(rq.error);});}
+async function idbDeletePhoto(id){try{const db=await openPhotoDB();return new Promise((res,rej)=>{const tx=db.transaction('photos','readwrite');tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.objectStore('photos').delete(id);});}catch{}}
+async function scaleImageFile(file,max=512){return new Promise((resolve,reject)=>{const url=URL.createObjectURL(file);const img=new Image();img.onload=()=>{URL.revokeObjectURL(url);const w=img.naturalWidth,h=img.naturalHeight,s=Math.min(1,max/Math.max(w,h));const cw=Math.max(1,Math.round(w*s)),ch=Math.max(1,Math.round(h*s));const c=document.createElement('canvas');c.width=cw;c.height=ch;const ctx=c.getContext('2d');ctx.drawImage(img,0,0,cw,ch);c.toBlob(b=>{if(b)resolve(b);else resolve(file);},'image/jpeg',0.9)};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Bildfehler'));};img.src=url;});}
+
+/* ========= State ========= */
+let classes=loadWCs(), people=loadPeople(), editingWC=null, currentWC=null, editingRowId=null;
+
+/* ========= Migration (players -> people) ========= */
+function migrateIfNeeded(){
+  let changed=false, pChanged=false;
+  for(const wc of classes){
+    if(!Array.isArray(wc.players)) continue;
+    for(let i=0;i<wc.players.length;i++){
+      const old=wc.players[i];
+      if(!old) continue;
+
+      // NEW: already new-format reference {id: "..."} and no legacy fields -> skip
+      if (typeof old === 'object' && 'id' in old && !('firstName' in old) && !('lastName' in old) && !('photo' in old) && !('personId' in old)) {
+        continue;
+      }
+
+      // Legacy: explicit personId -> convert
+      if (old && typeof old === 'object' && 'personId' in old) {
+        wc.players[i] = { id: old.personId };
+        changed = true;
+        continue;
+      }
+
+      // Legacy: inline fields (firstName/lastName/photo)
+      const hasLegacy = old && (('firstName' in old) || ('lastName' in old) || ('photo' in old));
+      if (!hasLegacy) {
+        // Unknown shape -> leave untouched
+        continue;
+      }
+
+      const name=((old.firstName||"") + " " + (old.lastName||"")).trim() || "Unbenannt";
+      const key=name.toLowerCase()+"|"+""+"|"+"";
+      let person = Object.values(people).find(p=>(((p.name||"").toLowerCase()+"|"+(p.club||"").toLowerCase()+"|"+(p.dob||""))===key));
+      if(!person){
+        const pid=uuid();
+        person={id:pid,name,club:"",dob:"",photo:old.photo||null};
+        people[pid]=person; pChanged=true;
+        if(old.photo && String(old.photo).startsWith('idb://') && old.id && old.id!==pid){
+          (async()=>{
+            const blob=await idbGetPhotoBlob(old.id);
+            if(blob){ await idbPutPhoto(pid,blob); try{ await idbDeletePhoto(old.id);}catch(e){}; people[pid].photo='idb://'+pid; savePeople(people); }
+          })();
+        }
+      }
+      wc.players[i]={id:person.id}; changed=true;
+    }
+  }
+  if(changed) saveWCs(classes);
+  if(pChanged) savePeople(people);
+}
+migrateIfNeeded();
+
+/* ========= Arm-/Archiv-Filter ========= */
+let viewArm = localStorage.getItem("doubleko.viewArm") || "L";
+let viewArchive = (localStorage.getItem("doubleko.viewArchive")==="1");
+function updateArmButtons(){
+  $("#armL").classList.toggle("active", viewArm==="L");
+  $("#armL").setAttribute("aria-selected", viewArm==="L");
+  $("#armR").classList.toggle("active", viewArm==="R");
+  $("#armR").setAttribute("aria-selected", viewArm==="R");
+}
+function updateArchiveButton(){
+  try{
+    const hint=document.getElementById("archiveHint");
+    if(hint){ hint.textContent = viewArchive ? "Archivierte (beendete) Kategorien" : ""; }
+  }catch(e){ /* ignore */ }
+}
+function setArm(a){ viewArm=a; localStorage.setItem("doubleko.viewArm", a); updateArmButtons(); renderWCs(); }
+function toggleArchive(){ viewArchive=!viewArchive; localStorage.setItem("doubleko.viewArchive", viewArchive?"1":"0"); updateArchiveButton(); renderWCs(); }
+
+/* ========= Helpers ========= */
+function show(id){$("#view-list").style.display=id==="list"?"block":"none";$("#view-players").style.display=id==="players"?"block":"none";$("#view-tournament").style.display=id==="tournament"?"block":"none";}
+function personName(id){const p=people[id];return p?(p.name||"Unbenannt"):"Unbekannt";}
+function personClub(id){const p=people[id];return p?(p.club||""):"";}
+function personDob(id){const p=people[id];return p?(p.dob||""):"";}
+function initialsFromName(name){const parts=(name||"").trim().split(/\s+/).filter(Boolean); if(!parts.length) return "–"; const a=parts[0][0]||""; const b=(parts[1]||"")[0]||""; return (a+b).toUpperCase();}
+let TEMP_URLS=[];function clearTempURLs(){for(const u of TEMP_URLS){try{URL.revokeObjectURL(u)}catch{}}TEMP_URLS=[];}function trackTemp(u){TEMP_URLS.push(u);}
+
+/* ========= Order-Handling ========= */
+function normalizeOrdersFor(arm, archived){
+  const group=classes.filter(x=>(x.arm||"X")===arm && !!x.archived===!!archived);
+  group.sort((a,b)=> (a.order??1e9)-(b.order??1e9) );
+  group.forEach((c,i)=>{ c.order=i; });
+}
+function ensureOrders(){
+  const arms=["L","R","X"]; const arch=[false,true];
+  for(const a of arms){ for(const ar of arch){ normalizeOrdersFor(a,ar); } }
+  saveWCs(classes);
+}
+function nextOrder(arm, archived){ const group=classes.filter(x=>(x.arm||"X")===arm && !!x.archived===!!archived); return group.length; }
+
+/* ========= Auto-Archivierung ========= */
+function autoArchiveFinished(){
+  let changed=false;
+  for(const wc of classes){
+    if(!wc.archived && wc.state && wc.state.finished){
+      wc.archived = true;
+      wc.finishedAt = wc.finishedAt || now();
+      normalizeOrdersFor(wc.arm||"X", true);
+      changed=true;
+    }
+  }
+  if(changed) saveWCs(classes);
+}
+
+/* ========= DnD – aktuelle Ansicht umsortieren ========= */
+let dragSrcId=null;
+function currentViewList(){
+  const list = classes
+    .filter(w => (viewArchive ? !!w.archived : !w.archived))
+    .filter(w => w.arm ? (w.arm===viewArm) : true)
+    .sort((a,b)=> (a.order??0)-(b.order??0));
+  return list;
+}
+function reorderInCurrentView(fromId,toId,place){
+  if(!fromId || !toId || fromId===toId) return;
+  const list=currentViewList();
+  const fi=list.findIndex(x=>x.id===fromId), ti=list.findIndex(x=>x.id===toId);
+  if(fi<0||ti<0) return;
+  const item=list.splice(fi,1)[0];
+  const dest = ti + (place==="after" ? 1 : 0);
+  list.splice(dest,0,item);
+  list.forEach((c,i)=>{ c.order=i; });
+  saveWCs(classes);
+  renderWCs();
+}
+
+/* ========= Gewichtsklassen UI ========= */
+function renderWCs(){
+  ensureOrders();
+  autoArchiveFinished();
+  const tb=$("#wcTableBody");tb.innerHTML="";
+  const filtered = currentViewList();
+  $("#emptyWc").style.display=filtered.length?"none":"block";
+  $("#emptyWc").textContent = filtered.length ? "" : (viewArchive ? "Noch keine beendeten Kategorien." : "Noch keine Gewichtsklassen angelegt.");
+
+  for(const wc of filtered){
+    const tr=document.createElement("tr");
+    tr.dataset.id=wc.id;
+    tr.setAttribute("draggable","true");
+
+    // DnD Events
+    tr.addEventListener("dragstart",(e)=>{
+      if(e.target.closest("button,input,a")){ e.preventDefault(); return; }
+      dragSrcId=wc.id;
+      e.dataTransfer.effectAllowed="move";
+      try{ e.dataTransfer.setData("text/plain", wc.id); }catch{}
+      tr.classList.add("dragging");
+    });
+    tr.addEventListener("dragend",()=>{
+      dragSrcId=null;
+      tr.classList.remove("dragging","drop-top","drop-bottom");
+      document.querySelectorAll(".drop-top,.drop-bottom").forEach(el=>el.classList.remove("drop-top","drop-bottom"));
+    });
+    tr.addEventListener("dragover",(e)=>{
+      e.preventDefault();
+      const rect=tr.getBoundingClientRect();
+      const before = (e.clientY-rect.top) < rect.height/2;
+      tr.classList.toggle("drop-top", before);
+      tr.classList.toggle("drop-bottom", !before);
+    });
+    tr.addEventListener("dragleave",()=>{
+      tr.classList.remove("drop-top","drop-bottom");
+    });
+    tr.addEventListener("drop",(e)=>{
+      e.preventDefault();
+      const from = dragSrcId || (e.dataTransfer && e.dataTransfer.getData("text/plain"));
+      const rect=tr.getBoundingClientRect();
+      const before = (e.clientY-rect.top) < rect.height/2;
+      tr.classList.remove("drop-top","drop-bottom");
+      reorderInCurrentView(from, wc.id, before?"before":"after");
+    });
+
+    const tdN=document.createElement("td");
+    if(editingWC===wc.id){
+      const inp=document.createElement("input");inp.type="text";inp.value=wc.name;inp.className="grow";
+      inp.addEventListener("keydown",e=>{if(e.key==="Enter")commitEditWC(wc.id,inp.value);if(e.key==="Escape")cancelEditWC();});
+      tdN.appendChild(inp);setTimeout(()=>inp.focus(),0);
+    }else{
+      tdN.textContent=wc.name;
+      if(wc.arm){ const a=document.createElement("span"); a.className="chip"; a.style.marginLeft="8px"; a.textContent=(wc.arm==="L"?"Links":"Rechts"); tdN.appendChild(a); }
+      const finished=wc.state&&wc.state.finished;
+      if(wc.started||finished||wc.archived){
+        const chip=document.createElement("span");chip.className="chip";chip.style.marginLeft="8px";chip.textContent=(wc.archived||finished)?"Beendet":"Gestartet";tdN.appendChild(chip);
+      }
+    }
+    tr.appendChild(tdN);
+
+    const tdC=document.createElement("td");tdC.textContent=(wc.players?.length||0)+" Teilnehmer";tr.appendChild(tdC);
+
+    const tdA=document.createElement("td");tdA.className="actions";const finished=wc.state&&wc.state.finished;
+    if(editingWC===wc.id){
+      tdA.append(
+        btn("Speichern","btn-save",()=>commitEditWC(wc.id,tdN.querySelector("input").value)),
+        btn("Abbrechen","btn-ghost",cancelEditWC)
+      );
+    }else{
+      if(!wc.started && !wc.archived){
+        tdA.append(btn("Starten","btn-start",()=>startWC(wc.id,true)));
+      }else{
+        const s=document.createElement("span");s.className="chip";s.textContent=(wc.archived||finished)?"Beendet":"Gestartet";tdA.append(s);
+        tdA.append(btn("Öffnen","btn-ghost",()=>startWC(wc.id,true)));
+      }
+      tdA.append(
+        btn("Ergebnis",(wc.archived||finished)?"btn-save":"btn-ghost",()=>openResults(wc.id)),
+        btn("Teilnehmer verwalten","btn",()=>openPlayers(wc.id)),
+        btn("Bearbeiten","btn-ghost",()=>startEditWC(wc.id)),
+        btn("Löschen","btn-danger",()=>delWC(wc.id))
+      );
+    }
+    tr.appendChild(tdA);tb.appendChild(tr);
+  }
+}
+function btn(label,cls,fn){const b=document.createElement("button");b.textContent=label;b.className=cls;b.addEventListener("click",fn);return b;}
+function addWC(){
+  const base=$("#wcName").value.trim(); if(!base){$("#wcName").focus();return}
+  const items=[ {name:`${base} – Links`, arm:"L"}, {name:`${base} – Rechts`, arm:"R"} ];
+  let created=0;
+  for(const it of items){
+    if(classes.some(c=>c.name===it.name && c.arm===it.arm)){ continue; }
+    classes.push({
+      id:uuid(),name:it.name,arm:it.arm,archived:false,finishedAt:null,
+      order: nextOrder(it.arm,false),
+      players:[],started:false,state:null
+    });
+    created++;
+  }
+  saveWCs(classes); $("#wcName").value="";
+  renderWCs();
+  toast(created?`Kategorie hinzugefügt (${created})`:"Schon vorhanden");
+}
+function startEditWC(id){if(editingWC&&editingWC!==id){toast("Bitte erst Speichern/Abbrechen");return}editingWC=id;renderWCs();}
+function commitEditWC(id,newName){newName=(newName||"").trim();if(!newName){toast("Name darf nicht leer sein");return}const it=classes.find(c=>c.id===id);if(it)it.name=newName;editingWC=null;saveWCs(classes);renderWCs();toast("Aktualisiert");}
+function cancelEditWC(){editingWC=null;renderWCs();}
+function delWC(id){
+  const it=classes.find(c=>c.id===id);if(!it)return;
+  if(!confirm(`„${it.name}“ wirklich löschen?`))return;
+  const arm=it.arm||"X", arch=!!it.archived;
+  classes=classes.filter(c=>c.id!==id);
+  normalizeOrdersFor(arm,arch);
+  saveWCs(classes);renderWCs();toast("Gelöscht");
+}
+function startWC(id,openWindow){const it=classes.find(c=>c.id===id);if(!it)return;if((it.players?.length||0)<2){toast("Mindestens 2 Teilnehmer erforderlich");return}
+  if(!it.state)it.state=initialState(it.players.map(x=>({id:x.id})));it.started=true;saveWCs(classes);renderWCs();if(openWindow){const base=window.location.href.split('#')[0];const url=base+'#tournament='+encodeURIComponent(id);window.open(url,'_blank','noopener');return;}openTournamentInline(id);}
+
+/* ========= Personen (Directory) ========= */
+function upsertPersonByForm(name,club,dob,photo){
+  name=(name||"").trim(); club=(club||"").trim(); dob=(dob||"").trim();
+  let person = Object.values(people).find(p=>(p.name||"").toLowerCase()===name.toLowerCase() && (p.club||"").toLowerCase()===club.toLowerCase() && (p.dob||"")===dob);
+  if(person){
+    if(photo) person.photo=photo;
+    return person.id;
+  }
+  const id=uuid();
+  people[id]={id,name,club,dob,photo:photo||null};
+  savePeople(people);
+  return id;
+}
+
+function searchPeople(term){
+  const q = normalizeText(term);
+  const words = q ? q.split(" ") : [];
+  const list = Object.values(people);
+  if(!words.length){
+    return list.slice(0,200).sort((a,b)=> (a.name||"").localeCompare(b.name||"", "de"));
+  }
+  return list.filter(p=>{
+    const key = normalizeText([p.name||"", p.club||"", p.dob||""].join(" "));
+    return words.every(w=> key.includes(w));
+  }).slice(0,200).sort((a,b)=> (a.name||"").localeCompare(b.name||"", "de"));
+}
+
+/* ========= Teilnehmer UI ========= */
+function openPlayers(wcId){
+  currentWC=wcId;editingRowId=null;
+  const wc=classes.find(w=>w.id===wcId);if(!wc)return;
+  $("#playersTitle").textContent=`Teilnehmer – ${wc.name}`;
+  const bar=$("#playersTopActions");bar.innerHTML="";bar.appendChild(btn("← Zurück","btn-ghost",()=>{show("list")}));
+  if(!wc.started && !wc.archived){bar.appendChild(btn("Starten","btn-start",()=>startWC(wc.id,true)));}else{const chip=document.createElement("span");chip.className="chip";chip.textContent=(wc.state&&wc.state.finished)?"Beendet":"Gestartet";bar.appendChild(chip);bar.appendChild(btn("Öffnen","btn-ghost",()=>startWC(wc.id,true)));bar.appendChild(btn("Ergebnis",(wc.state&&wc.state.finished)?"btn-save":"btn-ghost",()=>openResults(wc.id)));}
+  $("#pName").value="";$("#pClub").value="";$("#pDob").value="";$("#pPhoto").value="";
+  hideTa(); renderPlayers(); show("players");
+}
+async function setAvatarCellByPerson(cell,personId){
+  const p=people[personId];
+  if(p && p.photo && p.photo.startsWith('idb://')){
+    const blob=await idbGetPhotoBlob(personId); if(blob){const url=URL.createObjectURL(blob);cell.innerHTML=`<img src="${url}" class="avatar">`; trackTemp(url); return;}
+  }
+  if(p && p.photo){ cell.innerHTML=`<img src="${p.photo}" class="avatar">`; }
+  else { cell.innerHTML="<span class='muted'>kein Foto</span>"; }
+}
+function renderPlayers(){
+  const wc=classes.find(w=>w.id===currentWC);if(!wc)return;
+  const tb=$("#playersTableBody");tb.innerHTML="";
+  $("#emptyPlayers").style.display=(wc.players&&wc.players.length)?"none":"block";
+  for(const ref of (wc.players||[])){
+    const pid=ref.id;
+    const per=people[pid]||{name:"Unbekannt"};
+    const tr=document.createElement("tr");tr.dataset.pid=pid;
+    const tdN=document.createElement("td");
+    if(editingRowId===pid){
+      const n=document.createElement("input");n.type="text";n.value=per.name||"";n.placeholder="Name";n.style.marginRight="6px";n.className="grow";
+      tdN.append(n);
+    }else{
+      tdN.textContent=per.name||"Unbekannt";
+    }
+    tr.appendChild(tdN);
+
+    const tdClub=document.createElement("td");
+    if(editingRowId===pid){
+      const c=document.createElement("input");c.type="text";c.value=per.club||"";c.placeholder="Verein";c.className="grow";
+      tdClub.append(c);
+    }else{
+      tdClub.textContent=per.club||"—";
+    }
+    tr.appendChild(tdClub);
+
+    const tdDob=document.createElement("td");
+    if(editingRowId===pid){
+      const d=document.createElement("input");d.type="date";d.value=per.dob||"";d.className="grow";
+      tdDob.append(d);
+    }else{
+      tdDob.textContent=per.dob||"—";
+    }
+    tr.appendChild(tdDob);
+
+    const tdP=document.createElement("td");
+    if(editingRowId===pid){
+      const ph=document.createElement("input");ph.type="text";ph.value=per.photo||"";ph.placeholder="Foto-URL (optional)";ph.className="grow";
+      tdP.appendChild(ph);
+    }else{
+      tdP.dataset.photoCell="1";tdP.style.cursor="pointer";tdP.title="Bild hierher ziehen oder klicken";tdP.innerHTML="<span class='muted'>lädt…</span>";
+      setAvatarCellByPerson(tdP,pid);
+    }
+    tr.appendChild(tdP);
+
+    const tdA=document.createElement("td");tdA.className="actions";
+    if(editingRowId===pid){
+      tdA.append(btn("Speichern","btn-save",()=>commitEditRow(pid,tr)),btn("Abbrechen","btn-ghost",cancelEditRow));
+    }else{
+      tdA.append(btn("Bearbeiten","btn-ghost",()=>startEditRow(pid)),btn("Entfernen","btn-danger",()=>removeFromClass(pid)));
+    }
+    tr.appendChild(tdA);
+
+    tb.appendChild(tr);
+  }
+}
+/* Drag & Drop/Klick-Upload */
+let pickTargetPid=null;const tbPlayers=$("#playersTableBody"),filePicker=$("#filePicker");
+if(tbPlayers&&filePicker){
+  tbPlayers.addEventListener('click',e=>{const td=e.target.closest('td[data-photo-cell="1"]');if(!td)return;const tr=td.closest('tr');if(!tr)return;pickTargetPid=tr.dataset.pid;filePicker.value='';filePicker.click();});
+  filePicker.addEventListener('change',async()=>{const f=filePicker.files&&filePicker.files[0];if(!f||!pickTargetPid)return;await handlePhotoFileForPerson(pickTargetPid,f);pickTargetPid=null;});
+  tbPlayers.addEventListener('dragover',e=>{const tr=e.target.closest('tr');if(tr){e.preventDefault();tr.classList.add('drop');}});
+  tbPlayers.addEventListener('dragleave',e=>{const tr=e.target.closest('tr');if(tr)tr.classList.remove('drop');});
+  tbPlayers.addEventListener('drop',async e=>{const tr=e.target.closest('tr');if(!tr)return;tr.classList.remove('drop');e.preventDefault();const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0];if(!f)return;await handlePhotoFileForPerson(tr.dataset.pid,f);});
+}
+async function handlePhotoFileForPerson(pid,file){
+  try{
+    const blob=await scaleImageFile(file,512);
+    await idbPutPhoto(pid,blob);
+    if(people[pid]){ people[pid].photo='idb://'+pid; savePeople(people); renderPlayers(); renderWCs(); }
+    toast("Foto gespeichert");
+  }catch(e){ console.error(e); toast("Fehler beim Speichern des Fotos"); }
+}
+
+/* Add / Edit / Remove */
+function addPlayerToCurrent(){
+  const wc=classes.find(w=>w.id===currentWC);if(!wc)return;
+  const name=$("#pName").value.trim();
+  const club=$("#pClub").value.trim();
+  const dob=$("#pDob").value.trim();
+  const photo=$("#pPhoto").value.trim();
+  if(!name){ $("#pName").focus(); return; }
+
+  const personId=upsertPersonByForm(name,club,dob,photo||null);
+
+  if(!wc.players.some(x=>x.id===personId)){
+    wc.players.push({id:personId});
+    wc.state=null; wc.started=false;
+    saveWCs(classes);
+    renderPlayers(); renderWCs();
+    toast("Teilnehmer hinzugefügt");
+  }else{
+    toast("Teilnehmer ist bereits in dieser Kategorie");
+  }
+  $("#pName").value=""; $("#pClub").value=""; $("#pDob").value=""; $("#pPhoto").value="";
+  hideTa();
+}
+function startEditRow(pid){ if(editingRowId && editingRowId!==pid){toast("Bitte erst Speichern/Abbrechen");return} editingRowId=pid; renderPlayers(); }
+function commitEditRow(pid,tr){
+  const per=people[pid]; if(!per) return;
+  const n=tr.querySelector("td:nth-child(1) input"); const c=tr.querySelector("td:nth-child(2) input");
+  const d=tr.querySelector("td:nth-child(3) input"); const p=tr.querySelector("td:nth-child(4) input");
+  per.name=(n?.value||"").trim(); per.club=(c?.value||"").trim(); per.dob=(d?.value||"").trim(); per.photo=(p?.value||"").trim()||null;
+  savePeople(people); editingRowId=null; renderPlayers(); renderWCs(); toast("Aktualisiert");
+}
+function cancelEditRow(){ editingRowId=null; renderPlayers(); }
+function removeFromClass(pid){
+  const wc=classes.find(w=>w.id===currentWC); if(!wc) return;
+  const per=people[pid];
+  if(!confirm(`„${per?per.name:"Spieler"}“ aus der Kategorie entfernen?`)) return;
+  wc.players=wc.players.filter(x=>x.id!==pid);
+  wc.state=null; wc.started=false;
+  saveWCs(classes); renderPlayers(); renderWCs(); toast("Entfernt (Klasse zurückgesetzt)");
+}
+
+/* ========= Typeahead (Namensvorschläge) ========= */
+let taIndex=-1;
+function renderTa(list,box,onPick){
+  box.innerHTML="";
+  if(!list.length){ box.style.display="none"; return; }
+  for(let i=0;i<list.length;i++){
+    const p=list[i];
+    const div=document.createElement("div");
+    div.className="ta-item"; div.setAttribute("role","option");
+    const meta=[];
+    if(p.club) meta.push(p.club);
+    if(p.dob) meta.push(p.dob);
+    div.innerHTML=`<div>${p.name} ${meta.length?`<span class="ta-muted">(${meta.join(" · ")})</span>`:""}</div>`;
+    div.addEventListener("click",()=>onPick(p));
+    box.appendChild(div);
+  }
+  box.style.display="block";
+}
+function hideTa(){ $("#taList").style.display="none"; taIndex=-1; }
+function attachTypeahead(inputEl, boxEl, onPick){
+  inputEl.addEventListener("input", ()=>{
+    const term=inputEl.value;
+    if(!term.trim()){ hideTa(); return; }
+    const list=searchPeople(term);
+    renderTa(list,boxEl,onPick);
+    taIndex=-1;
+  });
+  inputEl.addEventListener("keydown",(e)=>{
+    const items=[...boxEl.querySelectorAll(".ta-item")];
+    if(!items.length) return;
+    if(e.key==="ArrowDown"){ e.preventDefault(); taIndex=(taIndex+1)%items.length; items[taIndex].scrollIntoView({block:"nearest"}); items[taIndex].focus?.(); }
+    if(e.key==="ArrowUp"){ e.preventDefault(); taIndex=(taIndex-1+items.length)%items.length; items[taIndex].scrollIntoView({block:"nearest"}); items[taIndex].focus?.(); }
+    if(e.key==="Enter" && taIndex>=0){ e.preventDefault(); items[taIndex].click(); }
+    if(e.key==="Escape"){ hideTa(); }
+  });
+  document.addEventListener("click",(e)=>{ if(!boxEl.contains(e.target) && e.target!==inputEl){ hideTa(); } });
+}
+attachTypeahead($("#pName"), $("#taList"), (p)=>{
+  $("#pName").value=p.name||"";
+  $("#pClub").value=p.club||"";
+  $("#pDob").value=p.dob||"";
+  $("#pPhoto").value=p.photo||"";
+  hideTa();
+});
+attachTypeahead($("#bulkName"), $("#bulkTaList"), (p)=>{
+  $("#bulkName").value=p.name||"";
+  $("#bulkClub").value=p.club||"";
+  $("#bulkDob").value=p.dob||"";
+  $("#bulkPhoto").value=p.photo||"";
+  $("#bulkTaList").style.display="none";
+});
+
+/* ========= Double-KO Engine ========= */
+function initialState(playerRefs){
+  const st={competitors:{}, queueW:[], queueL:[],events:[], eliminated:[], finished:false,gfResetPending:false,mode:"round", curr:null, nextW:[], nextL:[], incomingL:[]};
+  playerRefs.forEach((r,i)=>{st.competitors[r.id]={losses:0,seed:i+1,lastOpponents:[]};st.queueW.push(r.id);});
+  return st;
+}
+function activeIds(st){const elim=new Set(st.eliminated);return Object.keys(st.competitors).filter(id=>!elim.has(id));}
+function buildRoundPairs(st, bracket){
+  const src = (bracket==='winners') ? [...st.queueW] : [...st.queueL];
+  if(bracket==='winners') st.queueW=[]; else st.queueL=[];
+  const pairs=[]; const q=[...src];
+  while(q.length>=2){
+    const p1=q.shift();
+    const opps=new Set(st.competitors[p1].lastOpponents||[]);
+    let idx=q.findIndex(c=>!opps.has(c)); if(idx<0) idx=0;
+    const p2=q.splice(idx,1)[0];
+    pairs.push([p1,p2]);
+  }
+  if(q.length===1){
+    const bye=q.shift();
+    if(bracket==='winners') st.nextW.push(bye); else st.nextL.push(bye);
+  }
+  return pairs;
+}
+function nextMatch(st){
+  if(st.finished) return null;
+  const act=activeIds(st);
+  if(act.length===2){
+    const[a,b]=act;const la=st.competitors[a].losses,lb=st.competitors[b].losses;
+    const playedGF=st.events.some(e=>e.bracket==="grandFinal");
+    const playedReset=st.events.some(e=>e.bracket==="grandFinalReset");
+    if(la===1&&lb===1&&!playedReset) return {bracket:"grandFinalReset",p1:a,p2:b};
+    if(!playedGF&&((la===0&&lb===1)||(la===1&&lb===0))) return {bracket:"grandFinal",p1:a,p2:b};
+  }
+  if(st.mode!=="round") st.mode="round";
+  if(!st.curr){ st.curr={bracket:"winners",pairs:buildRoundPairs(st,"winners"),index:0}; }
+  let guard=0;
+  while(guard++<4){
+    const c=st.curr;
+    if(c && c.index < c.pairs.length){
+      const [p1,p2]=c.pairs[c.index];
+      return {bracket:c.bracket,p1,p2};
+    }
+    if(c){
+      if(c.bracket==="winners"){
+        st.queueW=[...new Set(st.nextW)]; st.nextW=[];
+        st.queueL=[...st.queueL, ...st.incomingL]; st.incomingL=[];
+        st.curr={bracket:"losers",pairs:buildRoundPairs(st,"losers"),index:0};
+      }else if(c.bracket==="losers"){
+        st.queueL=[...new Set(st.nextL)]; st.nextL=[];
+        st.curr={bracket:"winners",pairs:buildRoundPairs(st,"winners"),index:0};
+      }else{
+        st.curr=null;
+      }
+    }else{
+      st.curr={bracket:"winners",pairs:buildRoundPairs(st,"winners"),index:0};
+    }
+  }
+  return null;
+}
+function checkFinished(st){
+  if(st.finished) return true;
+  if(st.gfResetPending) return false;
+  const act=activeIds(st);
+  if(act.length<=1){
+    st.finished=true;
+    if(act.length===1){
+      const champ=act[0];
+      if(!st.eliminated.includes(champ)) st.eliminated.push(champ);
+    }
+    return true;
+  }
+  return false;
+}
+function applyResult(st,m,winner){
+  const{bracket,p1,p2}=m;const loser=(winner===p1)?p2:p1;
+  const c1=st.competitors[p1],c2=st.competitors[p2];
+  c1.lastOpponents=[...(new Set([...(c1.lastOpponents||[]),p2]))];
+  c2.lastOpponents=[...(new Set([...(c2.lastOpponents||[]),p1]))];
+
+  if(bracket==="winners" && st.mode==="round"){
+    st.competitors[loser].losses+=1;
+    if(st.competitors[loser].losses>=2) st.eliminated.push(loser);
+    else st.incomingL.push(loser);
+    st.nextW.push(winner);
+    st.events.push({id:uuid(),timestamp:now(),bracket,p1,p2,winner});
+    if(st.curr) st.curr.index++;
+
+  } else if(bracket==="losers" && st.mode==="round"){
+    st.competitors[loser].losses+=1;
+    if(st.competitors[loser].losses>=2) st.eliminated.push(loser);
+    else st.nextL.push(loser);
+    st.nextL.push(winner);
+    st.events.push({id:uuid(),timestamp:now(),bracket,p1,p2,winner});
+    if(st.curr) st.curr.index++;
+
+  } else if(bracket==="grandFinal"){
+    st.competitors[loser].losses+=1;
+    st.events.push({id:uuid(),timestamp:now(),bracket,p1,p2,winner});
+    const lw=st.competitors[winner].losses,ll=st.competitors[loser].losses;
+    if(lw===1&&ll===1){st.gfResetPending=true;}
+    else{st.gfResetPending=false;st.finished=true;st.eliminated.push(loser,winner);}
+
+  } else if(bracket==="grandFinalReset"){
+    st.competitors[loser].losses+=1;
+    st.events.push({id:uuid(),timestamp:now(),bracket,p1,p2,winner});
+    st.finished=true;st.gfResetPending=false;st.eliminated.push(loser,winner);
+  }
+  checkFinished(st);
+}
+function rebuild(playerRefs,events){const st=initialState(playerRefs);for(const ev of events){applyResult(st,{bracket:ev.bracket,p1:ev.p1,p2:ev.p2},ev.winner);}checkFinished(st);return st;}
+
+/* ========= Turnier-UI ========= */
+function makeAvatarForMatch(personId){
+  const p=people[personId];
+  const wrap=document.createElement("span");wrap.className="match-ava-wrap";
+  const placeholder=document.createElement("span");placeholder.className="avatar-badge-lg";placeholder.textContent=initialsFromName(p?.name||"");wrap.appendChild(placeholder);
+  if(p&&p.photo){
+    if(p.photo.startsWith('idb://')){idbGetPhotoBlob(personId).then(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);trackTemp(url);const img=new Image();img.className="avatar-lg";img.src=url;img.alt="";wrap.innerHTML="";img.onload=()=>URL.revokeObjectURL(url);wrap.appendChild(img);});}
+    else{const img=new Image();img.className="avatar-lg";img.src=p.photo;img.alt="";wrap.innerHTML="";wrap.appendChild(img);}
+  }
+  return wrap;
+}
+function openTournamentInline(wcId){currentWC=wcId;const wc=classes.find(w=>w.id===wcId);if(!wc)return;if(!wc.state)wc.state=initialState(wc.players);checkFinished(wc.state);$("#tTitle").textContent=`Turnier – ${wc.name}`;renderTournament();show("tournament");}
+function renderTournament(){clearTempURLs();const wc=classes.find(w=>w.id===currentWC);if(!wc)return;if(!wc.state)wc.state=initialState(wc.players);checkFinished(wc.state);const st=wc.state;const nm=nextMatch(st);
+  const bTitle=nm?({winners:"Winners-Bracket",losers:"Losers-Bracket",grandFinal:"Grand Final",grandFinalReset:"Grand Final – Reset"}[nm.bracket]):"";$("#nextBracket").textContent=st.finished?"Turnier beendet":(nm?bTitle:"Warten auf nächste Paarung …");
+  function eventsOf(id){return (st.events||[]).filter(e=>e.p1===id||e.p2===id).length;}
+  let cls1="match-first",cls2="match-first";
+  if(nm&&!st.finished){
+    const firstRound=eventsOf(nm.p1)===0&&eventsOf(nm.p2)===0&&st.competitors[nm.p1].losses===0&&st.competitors[nm.p2].losses===0;
+    if(nm.bracket==="grandFinal"||nm.bracket==="grandFinalReset"){
+      const l1=st.competitors[nm.p1].losses,l2=st.competitors[nm.p2].losses;cls1=(l1===0)?"match-win":"match-lose";cls2=(l2===0)?"match-win":"match-lose";
+    } else if(firstRound){cls1=cls2="match-first";}
+      else if(nm.bracket==="winners"){cls1=cls2="match-win";}
+      else if(nm.bracket==="losers"){cls1=cls2="match-lose";}
+  }
+  const namesBox=$("#nextNames");namesBox.innerHTML="";
+  if(nm&&!st.finished){
+    const left=document.createElement("button");left.className="big match-btn "+cls1;
+    const leftWrap=document.createElement("span");leftWrap.style.display="inline-flex";leftWrap.style.alignItems="center";leftWrap.style.gap="10px";
+    leftWrap.appendChild(makeAvatarForMatch(nm.p1));const leftLabel=document.createElement("span");leftLabel.textContent=personName(nm.p1);leftWrap.appendChild(leftLabel);left.appendChild(leftWrap);
+    left.addEventListener("click",()=>{applyResult(st,nm,nm.p1);saveWCs(classes);renderTournament();});
+    const right=document.createElement("button");right.className="big match-btn "+cls2;
+    const rightWrap=document.createElement("span");rightWrap.style.display="inline-flex";rightWrap.style.alignItems="center";rightWrap.style.gap="10px";
+    rightWrap.appendChild(makeAvatarForMatch(nm.p2));const rightLabel=document.createElement("span");rightLabel.textContent=personName(nm.p2);rightWrap.appendChild(rightLabel);right.appendChild(rightWrap);
+    right.addEventListener("click",()=>{applyResult(st,nm,nm.p2);saveWCs(classes);renderTournament();});
+    namesBox.append(left,right);
+  }else{namesBox.innerHTML="<span class='muted'>–</span>";}
+  $("#undoLast").disabled=!(st.events&&st.events.length>0&&!st.finished);
+  const rankingCard=$("#rankingCard");
+  if(st.finished){
+    const order=st.eliminated||[];const rankingAsc=[...order].reverse();
+    const lines=rankingAsc.map((pid,idx)=>`${idx+1}. Platz ${personName(pid)}`);
+    $("#ranking").innerHTML=lines.map(x=>`<div>${x}</div>`).join("");
+    rankingCard.style.display="block";
+  } else { rankingCard.style.display="none"; }
+  autoArchiveFinished();
+  saveWCs(classes);
+}
+
+/* ========= Ergebnis-Modal ========= */
+function openResults(wcId){
+  classes=loadWCs();
+  const wc = classes.find(w=>w.id===wcId); if(!wc) return;
+  if(!wc.state) wc.state = initialState(wc.players);
+  checkFinished(wc.state);
+  saveWCs(classes);
+
+  $("#resTitle").textContent = wc.name;
+  const st = wc.state;
+  const body = $("#resBody");
+  if(st && st.finished && (st.eliminated||[]).length){
+    const rankingAsc = [...st.eliminated].reverse();
+    body.innerHTML = rankingAsc.map((pid,idx)=>`<div>${idx+1}. Platz ${personName(pid)}</div>`).join("");
+  } else {
+    body.innerHTML = "<span class='muted'>Turnier noch nicht beendet.</span>";
+  }
+  $("#resultsOverlay").style.display="flex";
+}
+$("#resClose").addEventListener("click", ()=>$("#resultsOverlay").style.display="none");
+$("#resultsOverlay").addEventListener("click", (e)=>{ if(e.target.id==="resultsOverlay") e.currentTarget.style.display="none"; });
+document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") $("#resultsOverlay").style.display="none"; });
+
+/* ========= Teilnehmer-zuweisen (Bulk) ========= */
+function openBulkAssign(){
+  $("#bulkName").value=""; $("#bulkClub").value=""; $("#bulkDob").value=""; $("#bulkPhoto").value="";
+  $("#bulkTaList").style.display="none";
+  const cont=$("#bulkList"); cont.innerHTML="";
+  const sorted=[...classes].filter(c=>!c.archived).sort((a,b)=>a.name.localeCompare(b.name,'de'));
+  if(!sorted.length){ cont.innerHTML="<div class='muted'>Keine Kategorien vorhanden.</div>"; }
+  for(const wc of sorted){
+    const id="bulk-"+wc.id;
+    const line=document.createElement("label");
+    line.style.display="flex"; line.style.alignItems="center"; line.style.gap="8px"; line.style.padding="6px 4px";
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.value=wc.id; cb.id=id;
+    const txt=document.createElement("span"); txt.textContent=wc.name+(wc.started ? " (gestartet)" : "");
+    line.appendChild(cb); line.appendChild(txt);
+    cont.appendChild(line);
+  }
+  $("#bulkOverlay").style.display="flex";
+}
+function closeBulkAssign(){ $("#bulkOverlay").style.display="none"; }
+function doBulkAssign(){
+  const name=$("#bulkName").value.trim(), club=$("#bulkClub").value.trim(), dob=$("#bulkDob").value.trim(), photo=$("#bulkPhoto").value.trim();
+  if(!name){ toast("Name angeben"); return; }
+  const checked=[...document.querySelectorAll("#bulkList input[type=checkbox]:checked")].map(x=>x.value);
+  if(!checked.length){ toast("Mindestens eine Kategorie wählen"); return; }
+  const personId=upsertPersonByForm(name,club,dob,photo||null);
+  let added=0;
+  for(const wcId of checked){
+    const wc=classes.find(w=>w.id===wcId); if(!wc) continue;
+    if(!wc.players.some(x=>x.id===personId)){
+      wc.players.push({id:personId});
+      wc.state=null; wc.started=false;
+      added++;
+    }
+  }
+  saveWCs(classes); renderWCs();
+  closeBulkAssign();
+  toast(`Teilnehmer hinzugefügt (${added})`);
+}
+
+/* ========= PEOPLE MANAGER (NEU) ========= */
+function listPersonUsages(pid){
+  const usedIn=[];
+  for(const wc of classes){
+    if(Array.isArray(wc.players) && wc.players.some(p=>p.id===pid)){
+      usedIn.push(wc.name);
+    }
+  }
+  return usedIn;
+}
+
+function renderPeopleTable(filterTerm=""){
+  const tb=$("#peopleTBody"); tb.innerHTML="";
+  const list=searchPeople(filterTerm);
+  if(!list.length){
+    const tr=document.createElement("tr");
+    const td=document.createElement("td"); td.colSpan=5; td.innerHTML="<span class='muted'>Keine Spieler gefunden.</span>";
+    tr.appendChild(td); tb.appendChild(tr); return;
+  }
+  for(const p of list){
+    const tr=document.createElement("tr");
+    tr.innerHTML = `
+      <td>${p.name||"Unbenannt"}</td>
+      <td>${p.club||"—"}</td>
+      <td>${p.dob||"—"}</td>
+      <td>${p.photo? "✔︎" : "—"}</td>
+      <td class="actions"></td>`;
+    const btnEdit=document.createElement("button");
+    btnEdit.className="btn-ghost";
+    btnEdit.textContent="Bearbeiten";
+    btnEdit.addEventListener("click",()=>openEditPerson(p.id));
+    tr.querySelector("td.actions").appendChild(btnEdit);
+    const btnDel=document.createElement("button");
+    btnDel.className="btn-danger";
+    btnDel.textContent="Löschen";
+    btnDel.addEventListener("click",()=>deletePersonWithConfirm(p.id));
+    tr.querySelector("td.actions").appendChild(btnDel);
+    tb.appendChild(tr);
+  }
+}
+
+function openPeopleManager(){
+  classes=loadWCs(); people=loadPeople();
+  $("#peopleSearch").value="";
+  renderPeopleTable("");
+  $("#peopleOverlay").style.display="flex";
+}
+function closePeopleManager(){ $("#peopleOverlay").style.display="none"; }
+async function deletePersonWithConfirm(pid){
+  const p=people[pid];
+  const usages=listPersonUsages(pid);
+  const hint = usages.length ? `\n\nDieser Spieler ist in folgenden Kategorien eingetragen:\n- ${usages.join("\n- ")}\n\nEr wird dort entfernt und diese Klassen werden zurückgesetzt.` : "";
+  if(!confirm(`Spieler „${p?p.name:"Unbekannt"}“ wirklich dauerhaft löschen?${hint}`)) return;
+
+  let touched=0;
+  for(const wc of classes){
+    if(!Array.isArray(wc.players)) continue;
+    const before=wc.players.length;
+    wc.players=wc.players.filter(x=>x.id!==pid);
+    if(wc.players.length!==before){
+      wc.state=null; wc.started=false;
+      touched++;
+    }
+  }
+  if(p && p.photo && p.photo.startsWith('idb://')){ await idbDeletePhoto(pid); }
+  delete people[pid];
+  savePeople(people);
+  saveWCs(classes);
+
+  renderPeopleTable($("#peopleSearch").value.trim());
+  renderWCs();
+  toast(touched ? `Spieler gelöscht (aus ${touched} Klasse(n) entfernt)` : "Spieler gelöscht");
+}
+
+/* ========= Undo + Back ========= */
+$("#undoLast").addEventListener("click", ()=>{
+  const wc=classes.find(w=>w.id===currentWC); if(!wc) return;
+  const evs=[...(wc.state?.events||[])]; if(!evs.length) return;
+  evs.pop(); wc.state=rebuild(wc.players, evs);
+  saveWCs(classes); renderTournament();
+});
+$("#tBack").addEventListener("click", ()=>{ window.close(); });
+
+/* ========= Storage-Sync & Routing ========= */
+window.addEventListener('storage', (e)=>{ if(e.key===KEY||e.key===PKEY){ classes=loadWCs(); people=loadPeople(); renderWCs(); } });
+function maybeOpenFromHash(){
+  const h=window.location.hash||"";
+  if(h.startsWith("#tournament=")){
+    const id=h.slice("#tournament=".length);
+    classes=loadWCs();
+    const wc=classes.find(w=>w.id===id);
+    if(!wc){ alert("Klasse nicht gefunden."); return; }
+    if(!wc.started){ alert("Klasse ist nicht gestartet."); return; }
+    openTournamentInline(id);
+  } else { renderWCs(); show("list"); }
+}
+
+/* ========= Events ========= */
+$("#btnAddWC").addEventListener("click", addWC);
+$("#wcName").addEventListener("keydown", e=>{ if(e.key==="Enter") addWC(); });
+$("#btnBack").addEventListener("click", ()=>{ show("list"); });
+$("#btnAddPlayer").addEventListener("click", addPlayerToCurrent);
+$("#btnOpenBulk").addEventListener("click", openBulkAssign);
+$("#bulkCancel").addEventListener("click", closeBulkAssign);
+$("#bulkDo").addEventListener("click", doBulkAssign);
+document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ closeBulkAssign(); $("#resultsOverlay").style.display="none"; $("#bulkTaList").style.display="none"; if($("#peopleOverlay").style.display==="flex") closePeopleManager(); } });
+
+$("#armL").addEventListener("click", ()=>setArm("L"));
+$("#armR").addEventListener("click", ()=>setArm("R"));
+const __btnArch=$("#btnToggleArchive"); if(__btnArch){ __btnArch.addEventListener("click", toggleArchive); }
+
+
+/* ========= Backup (Export/Import) – hinzugefügt, damit Safari nicht stoppt ========= */
+function exportBackup(){
+  try{
+    const data={version:1, people:loadPeople?loadPeople():{}, classes:loadWCs?loadWCs():[]};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='doubleko_backup_'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0);
+    if(typeof toast==='function') toast('Backup gespeichert');
+  }catch(e){ console.error(e); alert('Backup fehlgeschlagen'); }
+}
+function importBackupFile(file){
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const data=JSON.parse(reader.result);
+      if(data.people && typeof data.people==='object' && typeof savePeople==='function'){ savePeople(data.people); }
+      if(Array.isArray(data.classes) && typeof saveWCs==='function'){ classes=data.classes; saveWCs(classes); }
+      if(typeof renderWCs==='function') renderWCs();
+      if(typeof toast==='function') toast('Backup importiert');
+    }catch(e){ console.error(e); alert('Ungültige Backup-Datei'); }
+  };
+  reader.readAsText(file);
+}
+$("#btnBackup").addEventListener("click", exportBackup);
+$("#btnRestore").addEventListener("click", ()=>$("#restorePicker").click());
+$("#restorePicker").addEventListener("change", (e)=>{ const f=e.target.files&&e.target.files[0]; if(f) importBackupFile(f); e.target.value=''; });
+
+/* People Manager Buttons */
+$("#btnManagePeople").addEventListener("click", openPeopleManager);
+$("#peopleClose").addEventListener("click", closePeopleManager);
+$("#peopleOverlay").addEventListener("click",(e)=>{ if(e.target.id==="peopleOverlay") closePeopleManager(); });
+$("#peopleSearch").addEventListener("input",(e)=>renderPeopleTable(e.target.value||""));
+
+/* ========= Init ========= */
+ensureOrders();
+updateArmButtons();
+updateArchiveButton();
+maybeOpenFromHash();
+</script>
+
+<!-- No-Close Patch: Zurück/Schließen soll NICHT den Browser schließen -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  function goHome(){
+    try{
+      var list=document.getElementById('view-list');
+      var tour=document.getElementById('view-tournament');
+      if(list) list.style.display='block';
+      if(tour) tour.style.display='none';
+      if(typeof renderWCs==='function'){ try{ renderWCs(); }catch(e){} }
+    }catch(e){ console.error(e); }
+  }
+  document.addEventListener('click', function(e){
+    var btn = e.target && (e.target.id==='tBack' ? e.target : e.target.closest && e.target.closest('#tBack'));
+    if(btn){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      goHome();
+    }
+  }, true);
+});
+</script>
+
+
+<!-- Anti-Autofill/Contacts: Nur App-Teilnehmer vorschlagen, OS-Kontakte unterdrücken -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    var ids = ['pName','bulkName','pClub','bulkClub','pPhoto','bulkPhoto','peopleSearch','wcName'];
+    ids.forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el) return;
+      el.setAttribute('autocomplete','off');
+      el.setAttribute('autocapitalize','off');
+      el.setAttribute('autocorrect','off');
+      el.setAttribute('spellcheck','false');
+      if(id==='pName' || id==='bulkName'){ try{ el.type='search'; el.setAttribute('results','0'); el.setAttribute('autosave','none'); }catch(e){} }
+      el.addEventListener('focus', function(){
+        var self=this;
+        if(!self.hasAttribute('data-hardened')){
+          self.setAttribute('data-hardened','1');
+          self.setAttribute('readonly','readonly');
+          setTimeout(function(){ try{ self.removeAttribute('readonly'); self.selectionStart=self.value.length; self.selectionEnd=self.value.length; }catch(e){} }, 120);
+        }
+      }, {once:true});
+    });
+  }catch(e){ console.error(e); }
+});
+</script>
+
+<script>
+
+/* ======= Status-Tabs (Aktiv/Beendet) ======= */
+function updateStatusButtons(){
+  var a=document.getElementById('viewActive');
+  var b=document.getElementById('viewArchived');
+  if(a){ a.classList.toggle('active', !viewArchive); a.setAttribute('aria-selected', (!viewArchive).toString()); }
+  if(b){ b.classList.toggle('active', viewArchive); b.setAttribute('aria-selected', (viewArchive).toString()); }
+  var hint=document.getElementById('archiveHint');
+  if(hint){ hint.textContent = viewArchive ? 'Beendete Kategorien' : 'Aktive Kategorien'; }
+}
+if(typeof updateArchiveButton==='function'){
+  var __oldUAB = updateArchiveButton;
+  updateArchiveButton = function(){ try{ updateStatusButtons(); }catch(e){} };
+}
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    var va=document.getElementById('viewActive');
+    if(va){ va.addEventListener('click', function(){ if(viewArchive){ viewArchive=false; localStorage.setItem('doubleko.viewArchive','0'); updateStatusButtons(); renderWCs(); } }); }
+    var vb=document.getElementById('viewArchived');
+    if(vb){ vb.addEventListener('click', function(){ if(!viewArchive){ viewArchive=true; localStorage.setItem('doubleko.viewArchive','1'); updateStatusButtons(); renderWCs(); } }); }
+    var tgl=document.getElementById('btnToggleArchive');
+    if(tgl){ tgl.addEventListener('click', function(){ viewArchive=!viewArchive; localStorage.setItem('doubleko.viewArchive', viewArchive?'1':'0'); updateStatusButtons(); renderWCs(); }); }
+    updateStatusButtons();
+  }catch(e){ console.error(e); }
+});
+
+</script>
+
+<!-- Buttons-Fix / Fallbacks (unverändert) -->
+<style>
+.dk-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:99999}
+.dk-modal{background:#16181d;border:1px solid #27303a;border-radius:16px;max-width:800px;width:calc(100% - 32px);padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.5);color:#e8eaed}
+.dk-table{width:100%;border-collapse:separate;border-spacing:0}
+.dk-table th,.dk-table td{padding:8px;border-bottom:1px solid #27303a;text-align:left}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try{
+    function safe(el){ return document.getElementById(el); }
+    function lsGet(k, d){ try{ var v = localStorage.getItem(k); return v? JSON.parse(v): d; }catch(e){ return d; } }
+    function lsSet(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+
+    if(typeof window.exportBackup !== 'function'){
+      window.exportBackup = function(){
+        try{
+          var data={version:1, people:lsGet('doubleko.people.v1', {}), classes:lsGet('doubleko.weightclasses.v1', [])};
+          var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+          var url=URL.createObjectURL(blob);
+          var a=document.createElement('a');
+          a.href=url; a.download='doubleko_backup_'+new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')+'.json';
+          document.body.appendChild(a); a.click();
+          setTimeout(function(){URL.revokeObjectURL(url); a.remove();},0);
+          if(typeof toast==='function') toast('Backup gespeichert');
+        }catch(e){ console.error(e); alert('Backup fehlgeschlagen'); }
+      };
+    }
+    if(typeof window.importBackupFile !== 'function'){
+      window.importBackupFile = function(file){
+        var reader=new FileReader();
+        reader.onload=function(){
+          try{
+            var data=JSON.parse(reader.result||'{}');
+            if(data.people && typeof data.people==='object'){ lsSet('doubleko.people.v1', data.people); }
+            if(data.classes && data.classes instanceof Array){ lsSet('doubleko.weightclasses.v1', data.classes); }
+            if(typeof renderWCs==='function') renderWCs();
+            if(typeof toast==='function') toast('Backup importiert');
+          }catch(e){ console.error(e); alert('Ungültige Backup-Datei'); }
+        };
+        reader.readAsText(file);
+      };
+    }
+
+    var picker = safe('restorePicker');
+    if(!picker){
+      picker = document.createElement('input'); picker.type='file'; picker.accept='application/json'; picker.style.display='none'; picker.id='restorePicker';
+      document.body.appendChild(picker);
+    }
+    picker.addEventListener('change', function(e){ var f=e.target.files && e.target.files[0]; if(f) importBackupFile(f); e.target.value=''; }, false);
+
+    var pplOverlay = document.getElementById('peopleOverlay');
+    if(!pplOverlay){
+      pplOverlay = document.createElement('div'); pplOverlay.className='dk-modal-overlay'; pplOverlay.id='peopleOverlay';
+      pplOverlay.innerHTML = '<div class="dk-modal"><h2>Spieler verwalten</h2><div id="dkPeopleBody" style="max-height:420px;overflow:auto;margin-top:8px"><table class="dk-table"><thead><tr><th>Name</th><th>Verein</th><th>Geburtsdatum</th></tr></thead><tbody id="dkPeopleTBody"></tbody></table></div><div style="display:flex;justify-content:flex-end;margin-top:10px"><button id="dkPeopleClose" class="btn-ghost" style="padding:8px 12px;border:1px solid #27303a;border-radius:10px;background:transparent;color:#e8eaed;cursor:pointer">Schließen</button></div></div>';
+      document.body.appendChild(pplOverlay);
+    }
+
+    function openPeopleManagerFallback(){
+      try{
+        var people = lsGet('doubleko.people.v1', {});
+        var tbody = document.getElementById('dkPeopleTBody');
+        if(tbody){
+          var rows=''; var any=false;
+          for(var id in people){
+            if(!people.hasOwnProperty(id)) continue;
+            any=true;
+            var p = people[id]||{};
+            rows += '<tr><td>'+(p.name||'Unbenannt')+'</td><td>'+(p.club||'—')+'</td><td>'+(p.dob||'—')+'</td></tr>';
+          }
+          tbody.innerHTML = any ? rows : '<tr><td colspan="3"><span class="muted">Keine Spieler gespeichert.</span></td></tr>';
+        }
+      }catch(e){ console.error(e); }
+      pplOverlay.style.display='flex';
+    }
+
+    document.getElementById('dkPeopleClose')?.addEventListener('click', function(){ pplOverlay.style.display='none'; });
+    pplOverlay.addEventListener('click', function(e){ if(e.target===pplOverlay) pplOverlay.style.display='none'; });
+
+    var btnBackup = safe('btnBackup');
+    if(btnBackup){ btnBackup.addEventListener('click', function(e){ e.preventDefault(); exportBackup(); }); }
+
+    var btnRestore = safe('btnRestore');
+    if(btnRestore){ btnRestore.addEventListener('click', function(e){ e.preventDefault(); picker.click(); }); }
+
+    var btnManage = safe('btnManagePeople');
+    if(btnManage){
+      btnManage.addEventListener('click', function(e){
+        e.preventDefault();
+        if(typeof openPeopleManager === 'function'){ try{ openPeopleManager(); return; }catch(err){ console.warn(err); } }
+        openPeopleManagerFallback();
+      });
+    }
+  }catch(e){ console.error(e); }
+});
+</script>
+
+
+<!-- Close-Fix for "Spieler verwalten": ensure the dialog closes on "Schließen" -->
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  try {
+    function hidePeopleOverlay(){
+      var ov = document.getElementById('peopleOverlay');
+      if(ov){ ov.style.display = 'none'; }
+    }
+    function doClosePeople(){
+      if (typeof closePeopleManager === 'function') {
+        try { closePeopleManager(); return; } catch(e){}
+      }
+      hidePeopleOverlay();
+    }
+    var btn1 = document.getElementById('peopleClose');
+    if (btn1) {
+      btn1.addEventListener('click', function(e){ e.preventDefault(); doClosePeople(); }, false);
+    }
+    var btn2 = document.getElementById('dkPeopleClose');
+    if (btn2) {
+      btn2.addEventListener('click', function(e){
+        e.preventDefault();
+        var ov = document.getElementById('peopleOverlay');
+        if(!ov){ ov = document.querySelector('.dk-modal-overlay'); }
+        if(ov){ ov.style.display='none'; }
+      }, false);
+    }
+    var ov1 = document.getElementById('peopleOverlay');
+    if (ov1) {
+      ov1.addEventListener('click', function(e){
+        if(e.target === ov1){ doClosePeople(); }
+      }, false);
+    }
+  } catch (e) { console.error(e); }
+}, false);
+</script>
+
+
+<!-- People Manager PRO wiring (edit overlay helpers) -->
+<script>
+function closeEditPerson(){
+  const ov = document.getElementById('editPersonOverlay');
+  if(ov) ov.style.display='none';
+  __epId = null;
+}
+function saveEditPerson(){
+  if(!__epId){ return closeEditPerson(); }
+  try{
+    const people = (typeof loadPeople==='function') ? loadPeople() : {};
+    const p = people[__epId] || {id:__epId};
+    p.name  = (document.getElementById('epName').value||'').trim();
+    p.club  = (document.getElementById('epClub').value||'').trim();
+    p.dob   = (document.getElementById('epDob').value||'').trim();
+    const ph= (document.getElementById('epPhoto').value||'').trim(); p.photo = ph || null;
+    people[__epId] = p;
+    if(typeof savePeople==='function') savePeople(people);
+    const term = (document.getElementById('peopleSearch') && document.getElementById('peopleSearch').value)||'';
+    if(typeof renderPeopleTable==='function') renderPeopleTable(term.trim());
+    if(typeof renderWCs==='function') { try{ renderWCs(); }catch(e){} }
+    if(typeof toast==='function') toast('Spieler aktualisiert');
+  }catch(e){ console.error(e); }
+  closeEditPerson();
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const ov = document.getElementById('editPersonOverlay');
+  if(ov){
+    document.getElementById('epSave').addEventListener('click', (e)=>{ e.preventDefault(); saveEditPerson(); }, false);
+    document.getElementById('epCancel').addEventListener('click', (e)=>{ e.preventDefault(); closeEditPerson(); }, false);
+    ov.addEventListener('click', (e)=>{ if(e.target===ov) closeEditPerson(); }, false);
+  }
+});
+</script>
+
+
+<script>
+window.openEditPerson = window.openEditPerson || function(pid){
+  try{
+    var people = (typeof loadPeople==='function') ? loadPeople() : {};
+    var p = people[pid] || {id:pid}; window.__epId = pid;
+    var ov = document.getElementById('editPersonOverlay');
+    if(!ov){ console.error('Edit-Overlay fehlt'); return; }
+    var f1=document.getElementById('epName'), f2=document.getElementById('epClub'), f3=document.getElementById('epDob'), f4=document.getElementById('epPhoto');
+    if(!f1||!f2||!f3||!f4){ console.error('Edit-Felder fehlen'); return; }
+    f1.value=p.name||''; f2.value=p.club||''; f3.value=p.dob||''; f4.value=p.photo||'';
+    ov.style.display='flex';
+  }catch(e){ console.error(e); }
+};
+</script>
+
+
+<!-- Edit Overlay FINAL wiring -->
+<script>
+(function(){
+  function q(id){ return document.getElementById(id); }
+  function renderW(){ if(typeof renderWCs==='function'){ try{ renderWCs(); }catch(e){} } }
+
+  if(typeof window.saveEditPerson !== 'function'){
+    window.saveEditPerson = function(){
+      try{
+        var id = window.__epId;
+        if(!id){ closeEditPerson(); return; }
+        var people = (typeof loadPeople==='function') ? loadPeople() : {};
+        var p = people[id] || {id:id};
+        p.name  = (q('epName').value||'').trim();
+        p.club  = (q('epClub').value||'').trim();
+        p.dob   = (q('epDob').value||'').trim();
+        var ph  = (q('epPhoto').value||'').trim(); p.photo = ph || null;
+        people[id]=p;
+        if(typeof savePeople==='function') savePeople(people);
+        var term = (q('peopleSearch') && q('peopleSearch').value) || '';
+        if(typeof renderPeopleTable==='function') renderPeopleTable(term.trim());
+        renderW();
+        if(typeof toast==='function') toast('Spieler aktualisiert');
+      }catch(e){ console.error(e); }
+      closeEditPerson();
+    };
+  }
+  if(typeof window.closeEditPerson !== 'function'){
+    window.closeEditPerson = function(){
+      var ov = q('editPersonOverlay');
+      if(ov){ ov.style.display='none'; }
+      window.__epId = null;
+    };
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    ['epSave','epCancel'].forEach(function(id){
+      var el = q(id); if(el){ el.removeAttribute('disabled'); el.style.pointerEvents='auto'; el.tabIndex = 0; }
+    });
+    var ov = q('editPersonOverlay');
+    if(ov){ ov.style.zIndex = 100001; }
+
+    document.addEventListener('click', function(e){
+      var t = e.target;
+      if(t && t.id === 'epSave'){
+        e.preventDefault(); e.stopImmediatePropagation();
+        try{ window.saveEditPerson(); }catch(err){ console.error(err); }
+        return;
+      }
+      if(t && t.id === 'epCancel'){
+        e.preventDefault(); e.stopImmediatePropagation();
+        try{ window.closeEditPerson(); }catch(err){ console.error(err); }
+        return;
+      }
+      var overlay = q('editPersonOverlay');
+      if(overlay && t === overlay){
+        e.preventDefault(); e.stopImmediatePropagation();
+        try{ window.closeEditPerson(); }catch(err){ console.error(err); }
+        return;
+      }
+    }, true);
+
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){
+        try{ window.closeEditPerson(); }catch(err){}
+      }
+    }, true);
+  }, false);
+})();
+</script>
+
+
+<!-- Start-Confirm Dialog (unverändert) -->
+<style>
+.sc-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:100050}
+.sc-modal{background:#16181d;border:1px solid #27303a;border-radius:16px;max-width:860px;width:calc(100% - 36px);padding:18px 20px;box-shadow:0 10px 40px rgba(0,0,0,.5);color:#e8eaed}
+.sc-title{font-size:20px;margin:0 0 8px 0}
+.sc-muted{color:#9aa0a6;font-size:13px;margin-bottom:8px}
+.sc-list{max-height:360px;overflow:auto;border:1px solid #27303a;border-radius:12px;padding:8px}
+.sc-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:6px 4px;border-bottom:1px solid #27303a}
+.sc-row:last-child{border-bottom:0}
+.sc-name{font-size:16px}
+.sc-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.sc-btn{background:#3b82f6;border:0;color:#fff;border-radius:10px;padding:10px 14px;cursor:pointer}
+.sc-btn-ghost{background:transparent;border:1px solid #27303a;color:#e8eaed;border-radius:10px;padding:10px 14px;cursor:pointer}
+.sc-badge{display:inline-block;padding:4px 8px;border-radius:999px;border:1px solid #27303a;background:#334155;color:#e8eaed;font-size:12px}
+.sc-warn{color:#fecaca}
+</style>
+<div class="sc-overlay" id="scOverlay" aria-modal="true" role="dialog" style="display:none">
+  <div class="sc-modal" role="document">
+    <h2 class="sc-title">Start bestätigen – <span id="scTitle"></span></h2>
+    <div id="scMeta" class="sc-muted"></div>
+    <div id="scList" class="sc-list"></div>
+    <div class="sc-actions">
+      <button id="scEdit" class="sc-btn-ghost">Teilnehmer bearbeiten</button>
+      <button id="scCancel" class="sc-btn-ghost">Zurück</button>
+      <button id="scGo" class="sc-btn">Jetzt starten</button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function loadClasses(){ try{ return (typeof loadWCs==='function') ? loadWCs() : JSON.parse(localStorage.getItem('doubleko.weightclasses.v1')||'[]'); }catch(e){ return []; } }
+  function loadPeopleDB(){ try{ return (typeof loadPeople==='function') ? loadPeople() : JSON.parse(localStorage.getItem('doubleko.people.v1')||'{}'); }catch(e){ return {}; } }
+  function countPlayers(wc){ return (wc && wc.players && wc.players.length) ? wc.players.length : 0; }
+  function personName(people, id){ var p=people && people[id]; return p && p.name ? p.name : 'Unbenannt'; }
+
+  var pendingId=null;
+
+  function openConfirm(id){
+    pendingId=id;
+    var classes=loadClasses(), people=loadPeopleDB(), wc=null, i;
+    for(i=0;i<classes.length;i++){ if(classes[i] && classes[i].id===id){ wc=classes[i]; break; } }
+    if(!wc){ return; }
+    $('scTitle').textContent = wc.name || 'Kategorie';
+    var n = countPlayers(wc);
+    $('scMeta').innerHTML = '<span class="sc-badge">'+n+' Teilnehmer</span> '+(n<2?'<span class="sc-warn">(Mindestens 2 erforderlich)</span>':'');
+    var list='';
+    if(wc.players && wc.players.length){
+      for(i=0;i<wc.players.length;i++){
+        var pid = wc.players[i] && wc.players[i].id;
+        list += '<div class="sc-row"><div class="sc-name">'+ personName(people, pid) +'</div></div>';
+      }
+    } else {
+      list = '<div class="sc-row"><div class="sc-name sc-muted">Keine Teilnehmer.</div></div>';
+    }
+    $('scList').innerHTML=list;
+    $('scOverlay').style.display='flex';
+  }
+  function closeConfirm(){ $('scOverlay').style.display='none'; pendingId=null; }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    var ov=$('scOverlay'); if(!ov) return;
+    ov.addEventListener('click', function(e){ if(e.target===ov) closeConfirm(); }, false);
+    $('scCancel').addEventListener('click', function(e){ e.preventDefault(); closeConfirm(); }, false);
+    $('scEdit').addEventListener('click', function(e){
+      e.preventDefault();
+      if(!pendingId) return;
+      closeConfirm();
+      if(typeof openPlayers==='function'){ try{ openPlayers(pendingId); }catch(err){} }
+    }, false);
+    $('scGo').addEventListener('click', function(e){
+      e.preventDefault();
+      if(!pendingId) return;
+      try{
+        if(typeof window.__origStartWC === 'function'){ window.__origStartWC(pendingId, true); }
+        else if(typeof startWC === 'function'){ startWC(pendingId, true); }
+      }catch(err){ console.error(err); }
+      closeConfirm();
+    }, false);
+  }, false);
+
+  document.addEventListener('DOMContentLoaded', function(){
+    try{
+      if(typeof startWC === 'function' && !window.__origStartWC){
+        window.__origStartWC = startWC;
+        window.startWC = function(id, openWindow){
+          try{
+            var classes = loadClasses(), wc=null, i;
+            for(i=0;i<classes.length;i++){ if(classes[i] && classes[i].id===id){ wc=classes[i]; break; } }
+            if(!wc){ return window.__origStartWC(id, openWindow); }
+            if(wc.started || wc.archived){
+              if(openWindow){ try{ var base=window.location.href.split('#')[0]; var url=base+'#tournament='+encodeURIComponent(id); window.open(url,'_blank','noopener'); return; }catch(e){} } if(typeof openTournamentInline==='function'){ try{ openTournamentInline(id); return; }catch(e){} }
+              return window.__origStartWC(id, openWindow);
+            }
+            openConfirm(id);
+          }catch(e){
+            console.error(e);
+            return window.__origStartWC(id, openWindow);
+          }
+        };
+      }
+    }catch(e){ console.error(e); }
+  }, false);
+})();
+</script>
+
+
+<script>
+(function(){
+  const KEY = 'tournamentName';
+  const el = document.getElementById('tournamentTitle');
+  if(!el) return;
+  const saved = localStorage.getItem(KEY);
+  if(saved){ el.textContent = saved; }
+  el.addEventListener('dblclick', () => {
+    el.contentEditable = 'true';
+    el.focus();
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+  el.addEventListener('blur', () => {
+    el.contentEditable = 'false';
+    const txt = (el.textContent || '').trim() || 'ARMWRESTLING TOURNAMENT';
+    el.textContent = txt;
+    try { localStorage.setItem(KEY, txt); } catch(e){ /* ignore */ }
+  });
+  el.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      el.blur();
+    }
+  });
+})();
+</script>
+
+</body></html>
